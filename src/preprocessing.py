@@ -8,79 +8,79 @@ import random
 
 training_files = {
     "HToBB": [
-        'JetClass_values/HToBB_120.root:tree',
-        'JetClass_values/HToBB_122.root:tree',
-        'JetClass_values/HToBB_124.root:tree',
+        'data/raw/JetClass_values/HToBB_120.root:tree',
+        'data/raw/JetClass_values/HToBB_122.root:tree',
+        'data/raw/JetClass_values/HToBB_124.root:tree',
     ],
     "HToCC": [
-        'JetClass_values/HToCC_120.root:tree',
-        'JetClass_values/HToCC_122.root:tree',
-        'JetClass_values/HToCC_124.root:tree',
+        'data/raw/JetClass_values/HToCC_120.root:tree',
+        'data/raw/JetClass_values/HToCC_122.root:tree',
+        'data/raw/JetClass_values/HToCC_124.root:tree',
     ],
     "HToGG": [
-        'JetClass_values/HToGG_120.root:tree',
-        'JetClass_values/HToGG_122.root:tree',
-        'JetClass_values/HToGG_124.root:tree',
+        'data/raw/JetClass_values/HToGG_120.root:tree',
+        'data/raw/JetClass_values/HToGG_122.root:tree',
+        'data/raw/JetClass_values/HToGG_124.root:tree',
     ],
     "HToWW2Q1L": [
-        'JetClass_values/HToWW2Q1L_120.root:tree',
-        'JetClass_values/HToWW2Q1L_122.root:tree',
-        'JetClass_values/HToWW2Q1L_124.root:tree',
+        'data/raw/JetClass_values/HToWW2Q1L_120.root:tree',
+        'data/raw/JetClass_values/HToWW2Q1L_122.root:tree',
+        'data/raw/JetClass_values/HToWW2Q1L_124.root:tree',
     ],
     "HToWW4Q": [
-        'JetClass_values/HToWW4Q_120.root:tree',
-        'JetClass_values/HToWW4Q_122.root:tree',
-        'JetClass_values/HToWW4Q_124.root:tree',
+        'data/raw/JetClass_values/HToWW4Q_120.root:tree',
+        'data/raw/JetClass_values/HToWW4Q_122.root:tree',
+        'data/raw/JetClass_values/HToWW4Q_124.root:tree',
     ],
     "TTBar": [
-        'JetClass_values/TTBar_120.root:tree',
-        'JetClass_values/TTBar_122.root:tree',
-        'JetClass_values/TTBar_124.root:tree',
+        'data/raw/JetClass_values/TTBar_120.root:tree',
+        'data/raw/JetClass_values/TTBar_122.root:tree',
+        'data/raw/JetClass_values/TTBar_124.root:tree',
     ],
     "TTBarLep": [
-        'JetClass_values/TTBarLep_120.root:tree',
-        'JetClass_values/TTBarLep_122.root:tree',
-        'JetClass_values/TTBarLep_124.root:tree',
+        'data/raw/JetClass_values/TTBarLep_120.root:tree',
+        'data/raw/JetClass_values/TTBarLep_122.root:tree',
+        'data/raw/JetClass_values/TTBarLep_124.root:tree',
     ],
     "WToQQ": [
-        'JetClass_values/WToQQ_120.root:tree',
-        'JetClass_values/WToQQ_122.root:tree',
-        'JetClass_values/WToQQ_124.root:tree',
+        'data/raw/JetClass_values/WToQQ_120.root:tree',
+        'data/raw/JetClass_values/WToQQ_122.root:tree',
+        'data/raw/JetClass_values/WToQQ_124.root:tree',
     ],
     "ZJetsToNuNu": [
-        'JetClass_values/ZJetsToNuNu_120.root:tree',
-        'JetClass_values/ZJetsToNuNu_122.root:tree',
-        'JetClass_values/ZJetsToNuNu_124.root:tree',
+        'data/raw/JetClass_values/ZJetsToNuNu_120.root:tree',
+        'data/raw/JetClass_values/ZJetsToNuNu_122.root:tree',
+        'data/raw/JetClass_values/ZJetsToNuNu_124.root:tree',
     ],
     "ZtoQQ": [
-        'JetClass_values/ZToQQ_120.root:tree',
-        'JetClass_values/ZToQQ_122.root:tree',
-        'JetClass_values/ZToQQ_124.root:tree',
+        'data/raw/JetClass_values/ZToQQ_120.root:tree',
+        'data/raw/JetClass_values/ZToQQ_122.root:tree',
+        'data/raw/JetClass_values/ZToQQ_124.root:tree',
     ]
 }
 validation_files = {
-    "HToBB": ['JetClass_values/HToBB_123.root:tree'],
-    "HToCC": ['JetClass_values/HToCC_123.root:tree'],
-    "HToGG": ['JetClass_values/HToGG_123.root:tree'],
-    "HToWW2Q1L": ['JetClass_values/HToWW2Q1L_123.root:tree'],
-    "HToWW4Q": ['JetClass_values/HToWW4Q_123.root:tree'],
-    "TTBar": ['JetClass_values/TTBar_123.root:tree'],
-    "TTBarLep": ['JetClass_values/TTBarLep_123.root:tree'],
-    "WToQQ": ['JetClass_values/WToQQ_123.root:tree'],
-    "ZJetsToNuNu": ['JetClass_values/ZJetsToNuNu_123.root:tree'],
-    "ZtoQQ": ['JetClass_values/ZToQQ_123.root:tree']
+    "HToBB": ['data/raw/JetClass_values/HToBB_123.root:tree'],
+    "HToCC": ['data/raw/JetClass_values/HToCC_123.root:tree'],
+    "HToGG": ['data/raw/JetClass_values/HToGG_123.root:tree'],
+    "HToWW2Q1L": ['data/raw/JetClass_values/HToWW2Q1L_123.root:tree'],
+    "HToWW4Q": ['data/raw/JetClass_values/HToWW4Q_123.root:tree'],
+    "TTBar": ['data/raw/JetClass_values/TTBar_123.root:tree'],
+    "TTBarLep": ['data/raw/JetClass_values/TTBarLep_123.root:tree'],
+    "WToQQ": ['data/raw/JetClass_values/WToQQ_123.root:tree'],
+    "ZJetsToNuNu": ['data/raw/JetClass_values/ZJetsToNuNu_123.root:tree'],
+    "ZtoQQ": ['data/raw/JetClass_values/ZToQQ_123.root:tree']
 }
 testing_files = {
-    "HToBB": ['JetClass_values/HToBB_121.root:tree'],
-    "HToCC": ['JetClass_values/HToCC_121.root:tree'],
-    "HToGG": ['JetClass_values/HToGG_121.root:tree'],
-    "HToWW2Q1L": ['JetClass_values/HToWW2Q1L_121.root:tree'],
-    "HToWW4Q": ['JetClass_values/HToWW4Q_121.root:tree'],
-    "TTBar": ['JetClass_values/TTBar_121.root:tree'],
-    "TTBarLep": ['JetClass_values/TTBarLep_121.root:tree'],
-    "WToQQ": ['JetClass_values/WToQQ_121.root:tree'],
-    "ZJetsToNuNu": ['JetClass_values/ZJetsToNuNu_121.root:tree'],
-    "ZtoQQ": ['JetClass_values/ZToQQ_121.root:tree']
+    "HToBB": ['data/raw/JetClass_values/HToBB_121.root:tree'],
+    "HToCC": ['data/raw/JetClass_values/HToCC_121.root:tree'],
+    "HToGG": ['data/raw/JetClass_values/HToGG_121.root:tree'],
+    "HToWW2Q1L": ['data/raw/JetClass_values/HToWW2Q1L_121.root:tree'],
+    "HToWW4Q": ['data/raw/JetClass_values/HToWW4Q_121.root:tree'],
+    "TTBar": ['data/raw/JetClass_values/TTBar_121.root:tree'],
+    "TTBarLep": ['data/raw/JetClass_values/TTBarLep_121.root:tree'],
+    "WToQQ": ['data/raw/JetClass_values/WToQQ_121.root:tree'],
+    "ZJetsToNuNu": ['data/raw/JetClass_values/ZJetsToNuNu_121.root:tree'],
+    "ZtoQQ": ['data/raw/JetClass_values/ZToQQ_121.root:tree']
 }
 
 def process_chunk(chunk):
@@ -177,6 +177,11 @@ def preprocess_and_save(files, output_dir, step=1000):
     print(f"finished preprocessing {output_dir}")
 
 mean, std = get_mean_std(training_files)
+torch.save({
+    "mean": mean,
+    "std": std
+}, "/home/lastc/projects/JetGNN/data/processed/normalization.pt")
+
 preprocess_and_save(training_files, "/home/lastc/projects/JetGNN/data/processed/processed_training")
 preprocess_and_save(validation_files, "/home/lastc/projects/JetGNN/data/processed/processed_validation")
 preprocess_and_save(testing_files, "/home/lastc/projects/JetGNN/data/processed/processed_testing")

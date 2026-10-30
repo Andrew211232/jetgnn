@@ -1,6 +1,7 @@
 import numpy as np
 from torch_geometric.loader import DataLoader
 from sklearn.metrics import confusion_matrix
+from processed_training import mean, std
 import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
@@ -15,7 +16,7 @@ random.seed(12345)
 np.random.seed(12345)
 torch.manual_seed(12345)
 EPOCHS = 1
-mean, std = preprocessing.get_mean_std(training_files)
+#mean, std = preprocessing.get_mean_std(training_files)
 model = models.JetClassGNN(mean, std)
 model = model.to(gpu_or_cpu)
 best_model = models.EarlyStopping(patience=5, delta_min=1*e^4)
