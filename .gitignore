@@ -1,0 +1,54 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# =========================
+# Virtual environments
+# =========================
+venv/
+.venv/
+env/
+
+# =========================
+# Dataset files
+# =========================
+data/raw/*
+data/processed/*
+
+# Keep the data directories in Git
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# =========================
+# Model outputs
+# =========================
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+# =========================
+# Logs and experiment outputs
+# =========================
+logs/
+runs/
+wandb/
+tensorboard/
+*.log
+
+# =========================
+# Jupyter
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# IDE and operating system
+# =========================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
