@@ -96,9 +96,9 @@ class_labels = [
     "ZToQQ"
 ]
 
-def process_chunk(chunk):
+def process_chunk(chunk, category):
     # Targets
-    target_matrix = np.column_stack([ak.to_numpy(chunk[f"label_{name}"]) for name in class_labels])
+    target = class_labels.index(category)
     targets = np.argmax(target_matrix, axis=-1)
 
     # Features
@@ -147,8 +147,8 @@ def get_mean_std(files, step=1000):
                 if not np.array_equal(particle_count, counts):
                     raise ValueError("Particle counts are inconsistent")
             if sum_x is None:
-                sum_x = np.zeros(len(feature_names), dtype=torch.float64)
-                sum_x2 = np.zeros(len(feature_names), dtype=torch.float64)
+                sum_x = np.zeros(len(feature_names), dtype=np.float64)
+                sum_x2 = np.zeros(len(feature_names), dtype=np.float64)
             for index, value in enumerate(feature_names):
                 values = ak.to_numpy(ak.flatten(chunk[value], axis=None)).astype(np.float64, copy=False)
                 sum_x[index] += np.sum(values, dtype=np.float64)
@@ -172,7 +172,7 @@ def preprocess_and_save(files, output_dir, step=1000):
         )
         chunk_number = 0
         for chunk in iterator:
-            graphs = process_chunk(chunk)
+            graphs = process_chunk(chunk, category)
             save_path = os.path.join(output_dir, f"{category}_{chunk_number}.pt")
             torch.save(graphs, save_path)
             chunk_number += 1
