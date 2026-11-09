@@ -1,17 +1,19 @@
 import numpy as np
 from torch_geometric.loader import DataLoader
 from sklearn.metrics import confusion_matrix
-from processed_training import mean, std
 import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
 import random
 import models
-import preprocessing
 
 gpu_or_cpu = torch.device(
     "cuda" if torch.cuda.is_available() else "cpu"
 )
+normalization = torch.load("data/processed/normalization.pt", weights_only=True)
+mean = normalization["mean"]
+std = normalization["std"]
+
 random.seed(12345)
 np.random.seed(12345)
 torch.manual_seed(12345)

@@ -5,6 +5,7 @@ import torch
 from torch_geometric.data import Data
 import os
 import random
+from pathlib import Path
 
 training_files = {
     "HToBB": [
@@ -52,7 +53,7 @@ training_files = {
         'data/raw/JetClass_5M/ZJetsToNuNu_122.root:tree',
         'data/raw/JetClass_5M/ZJetsToNuNu_124.root:tree',
     ],
-    "ZtoQQ": [
+    "ZToQQ": [
         'data/raw/JetClass_5M/ZToQQ_120.root:tree',
         'data/raw/JetClass_5M/ZToQQ_122.root:tree',
         'data/raw/JetClass_5M/ZToQQ_124.root:tree',
@@ -68,7 +69,7 @@ validation_files = {
     "TTBarLep": ['data/raw/JetClass_5M/TTBarLep_123.root:tree'],
     "WToQQ": ['data/raw/JetClass_5M/WToQQ_123.root:tree'],
     "ZJetsToNuNu": ['data/raw/JetClass_5M/ZJetsToNuNu_123.root:tree'],
-    "ZtoQQ": ['data/raw/JetClass_5M/ZToQQ_123.root:tree']
+    "ZToQQ": ['data/raw/JetClass_5M/ZToQQ_123.root:tree']
 }
 testing_files = {
     "HToBB": ['data/raw/JetClass_5M/HToBB_121.root:tree'],
@@ -80,14 +81,25 @@ testing_files = {
     "TTBarLep": ['data/raw/JetClass_5M/TTBarLep_121.root:tree'],
     "WToQQ": ['data/raw/JetClass_5M/WToQQ_121.root:tree'],
     "ZJetsToNuNu": ['data/raw/JetClass_5M/ZJetsToNuNu_121.root:tree'],
-    "ZtoQQ": ['data/raw/JetClass_5M/ZToQQ_121.root:tree']
+    "ZToQQ": ['data/raw/JetClass_5M/ZToQQ_121.root:tree']
 }
+class_labels = [
+    "HToBB",
+    "HToCC",
+    "HToGG",
+    "HToWW2Q1L",
+    "HToWW4Q",
+    "TTBar",
+    "TTBarLep",
+    "WToQQ",
+    "ZJetsToNuNu",
+    "ZToQQ"
+]
 
 def process_chunk(chunk):
 
     # Targets
-    target_names = [f for f in chunk.fields if f.startswith("label_")]
-    target_matrix = np.column_stack([ak.to_numpy(chunk[name]) for name in target_names])
+    target_matrix = np.column_stack([ak.to_numpy(chunk[f"label_{name}"]) for name in class_labels])
     targets = np.argmax(target_matrix, axis=-1)
 
     # Features
@@ -96,6 +108,9 @@ def process_chunk(chunk):
 
     for jet in range(len(targets)):
         particle_features = [ak.to_numpy(chunk[name][jet]) for name in feature_names] # gets the features of each particle
+        check_length = [len(feature) for feature in particle_features]
+        if len(set(check_length)) != 1:
+            raise ValueError(f"Inconsistent particle feature lengths for jet {jet}: {check_length}")
         x = np.stack(particle_features, axis=-1)
 
         amount_of_particles = x.shape[0] # used for iteration over the set of particles
@@ -138,28 +153,42 @@ def make_chunks(files, step=1000):
 
         yield graph_list
 
-def get_mean_std(files):
+def get_mean_std(files, step=1000):
 
     total = 0
     sum_x = None
     sum_x2 = None
 
-    for graph_list in make_chunks(files): # optional to add float64 dtypes
-        for graph in graph_list:
-            x = graph.x
+    for file_list in files.values():
+        iterator = uproot.iterate(
+            file_list,
+            filter_name=["part_*"],
+            step_size=step
+        )
+        for chunk in iterator:
+            feature_names = sorted([f for f in chunk.fields if f.startswith("part_")])
+            if len(feature_names) != 16:
+                raise ValueError(f"There were not 16 features in Jet, only {len(feature_names)}")
+            particle_count = ak.to_numpy(ak.num(chunk[feature_names[0]], axis=-1))
+            for name in feature_names[1:]:
+                counts = ak.to_numpy(ak.num(chunk[name], axis=-1))
+                if not np.array_equal(particle_count, counts):
+                    raise ValueError("Particle counts are inconsistent")
             if sum_x is None:
-                x_features = x.shape[1]
-                sum_x = torch.zeros(x_features, dtype=torch.float64)
-                sum_x2 = torch.zeros(x_features, dtype=torch.float64)
-            x=x.to(torch.float64)
-            sum_x += x.sum(dim=0)
-            sum_x2 += (x ** 2).sum(dim=0)
-            total += x.shape[0]
+                sum_x = np.zeros(len(feature_names), dtype=torch.float64)
+                sum_x2 = np.zeros(len(feature_names), dtype=torch.float64)
+            for index, value in enumerate(feature_names):
+                values = ak.to_numpy(ak.flatten(chunk[value], axis=None)).astype(np.float64, copy=False)
+                sum_x[index] += np.sum(values, dtype=np.float64)
+                sum_x2[index] += np.sum(np.square(values), dtype=np.float64)
+            total += particle_count.sum()
+    if total == 0:
+        raise ValueError("No graphs in list, check input files")
     mean = sum_x / total
-    std = torch.sqrt(sum_x2 / total - mean**2)
-    std[std == 0] = 1
+    std = np.sqrt(sum_x2 / total - np.square(mean))
+    std[std < 1e-12] = 1.0
 
-    return mean, std
+    return torch.tensor(mean, dtype=torch.float32), torch.tensor(std, dtype=torch.float32)
 
 
 def preprocess_and_save(files, output_dir, step=1000):
@@ -176,12 +205,17 @@ def preprocess_and_save(files, output_dir, step=1000):
             chunk_number += 1
     print(f"finished preprocessing {output_dir}")
 
-mean, std = get_mean_std(training_files)
-torch.save({
-    "mean": mean,
-    "std": std
-}, "/home/lustre/anmckeev/JetGNN/data/processed/normalization.pt")
+project_dir = Path(__file__).resolve().parent.parent
+processed_dir = project_dir / "data" / "processed"
+if __name__ == "__main__":
+    mean, std = get_mean_std(training_files)
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    torch.save({
+        "mean": mean,
+        "std": std,
+        "class_names": class_labels
+    }, processed_dir / "normalization.pt")
 
-preprocess_and_save(training_files, "/home/lustre/anmckeev/JetGNN/data/processed/processed_training")
-preprocess_and_save(validation_files, "/home/lustre/anmckeev/JetGNN/data/processed/processed_validation")
-preprocess_and_save(testing_files, "/home/lustre/anmckeev/JetGNN/data/processed/processed_testing")
+    preprocess_and_save(training_files, processed_dir / "processed_training")
+    preprocess_and_save(validation_files, processed_dir / "processed_validation")
+    preprocess_and_save(testing_files, processed_dir / "processed_testing")
