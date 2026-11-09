@@ -97,7 +97,6 @@ class_labels = [
 ]
 
 def process_chunk(chunk):
-
     # Targets
     target_matrix = np.column_stack([ak.to_numpy(chunk[f"label_{name}"]) for name in class_labels])
     targets = np.argmax(target_matrix, axis=-1)
@@ -158,7 +157,8 @@ def get_mean_std(files, step=1000):
     if total == 0:
         raise ValueError("No graphs in list, check input files")
     mean = sum_x / total
-    std = np.sqrt(sum_x2 / total - np.square(mean))
+    variance = np.maximum(sum_x2 / total - np.square(mean), 0.0)
+    std = np.sqrt(variance)
     std[std < 1e-12] = 1.0
 
     return torch.tensor(mean, dtype=torch.float32), torch.tensor(std, dtype=torch.float32)
