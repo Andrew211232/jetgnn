@@ -126,33 +126,6 @@ def process_chunk(chunk):
 
     return graphs
 
-def make_chunks(files, step=1000):
-    iterators = {}
-
-    for cls, file in files.items():
-        iterators[cls] = uproot.iterate(
-            file,
-            filter_name=["part_*", "label_*"],
-            step_size=step,
-        )
-    while True:
-
-        graph_list = []
-        for cls, iterator in list(iterators.items()):
-            try:
-                chunk = next(iterator)
-            except StopIteration:
-                del iterators[cls]
-                continue
-            graph = process_chunk(chunk)
-            graph_list.extend(graph)
-        if len(graph_list) == 0:
-            break
-
-        random.shuffle(graph_list)
-
-        yield graph_list
-
 def get_mean_std(files, step=1000):
 
     total = 0
