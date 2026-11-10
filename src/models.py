@@ -2,11 +2,17 @@ import torch
 import glob, os
 from torch_geometric.nn import global_mean_pool
 import torch.nn as nn
+import random
 
-def load_processed_chunks(directory, include_category=False):
+def load_processed_chunks(directory, include_category=False, shuffle=False):
+
     files = sorted(glob.glob(
         os.path.join(directory, "*.pt")
     ))
+    if shuffle:
+        random.shuffle(files)
+    if not files:
+        raise FileExistsError("No files to load")
     for filename in files:
         graphs = torch.load(filename, weights_only=False)
         if include_category:

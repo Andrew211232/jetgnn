@@ -21,9 +21,9 @@ EPOCHS = 1
 #mean, std = preprocessing.get_mean_std(training_files)
 model = models.JetClassGNN(mean, std)
 model = model.to(gpu_or_cpu)
-best_model = models.EarlyStopping(patience=5, delta_min=1*e^4)
+best_model = models.EarlyStopping(patience=5, delta_min=1e-4)
 
-optimizer = torch.optim.AdamW(model.parameters(), lr=-4, weight_decay=3e-3)
+optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-3)
 loss_function = nn.CrossEntropyLoss()
 
 train_losses = []
@@ -38,11 +38,11 @@ for epoch in range(EPOCHS):
     train_graphs = 0
     train_correct = 0
     train_total = 0
-    training_graph_list = models.load_processed_chunks("training_files")
+    training_graph_list = models.load_processed_chunks("data/processed/processed_training", shuffle=True)
     for graph in training_graph_list:
         if not graph:
             continue
-        loader = DataLoader(graph, batch_size = 5, shuffle=True)
+        loader = DataLoader(graph, batch_size = 8, shuffle=True)
         for batch in loader:
             batch = batch.to(gpu_or_cpu)
             optimizer.zero_grad()
@@ -65,12 +65,12 @@ for epoch in range(EPOCHS):
     correct = 0
     total = 0
     validation_graphs = 0
-    validation_graph_list = models.load_processed_chunks("validation_files")
+    validation_graph_list = models.load_processed_chunks("data/processed/processed_validation")
     with torch.no_grad():
         for graph in validation_graph_list:
             if not graph:
                 continue
-            loader = DataLoader(graph, batch_size = 256, shuffle=False)
+            loader = DataLoader(graph, batch_size = 8, shuffle=False)
             for batch in loader:
                 batch = batch.to(gpu_or_cpu)
                 output = model(batch)
@@ -81,24 +81,31 @@ for epoch in range(EPOCHS):
                 correct += (prediction == targets).sum().item()
                 total += len(targets)
         validation_loss /= validation_graphs
-    print(f"Epoch {epoch}   ", f"training loss: {train_loss:.4f}   ", f"validation loss: {validation_loss:.4f}   ", f"validation accuracy: {correct/total:.4f}")
+        if validation_loss < best_model.best_model - best_model.delta_min:
+            torch.save(model.state_dict(), "data/processed/best_model.pt")
+        best_model(validation_loss)
+    print(f"Epoch {epoch}   ", f"training loss: {train_loss:.4f}   ", f"training accuracy: {train_correct/train_total:.4f}   ",f"validation loss: {validation_loss:.4f}   ", f"validation accuracy: {correct/total:.4f}")
     train_losses.append(train_loss)
     validation_losses.append(validation_loss)
     validation_accuracies.append(correct / total)
-
+    if best_model.early_stop:
+        print(f"Early Stopping at {EPOCHS}")
+        break
 # Testing Phase
+model.load_state_dict(torch.load("data/processed/best_model.pt", map_location=gpu_or_cpu, weights_only=True))
+model.eval()
 testing_loss = 0
 test_correct = 0
 test_total = 0
 test_graphs = 0
 test_predictions = []
 test_targets = []
-testing_graph_list = models.load_processed_chunks("testing_files")
+testing_graph_list = models.load_processed_chunks("data/processed/processed_testing")
 with torch.no_grad():
     for graph in testing_graph_list:
         if not graph:
             continue
-        loader = DataLoader(graph, batch_size = 256, shuffle=False)
+        loader = DataLoader(graph, batch_size = 8, shuffle=False)
         for batch in loader:
             batch = batch.to(gpu_or_cpu)
             output = model(batch)
@@ -119,7 +126,7 @@ print(
 # Training Loss vs Validation Loss
 plt.figure(figsize=(8,5))
 plt.plot(train_losses, label="Training Loss")
-plt.plot(validation_losses, label="Validation Losses")
+plt.plot(validation_losses, label="Validation Loss")
 plt.xlabel("Epoch")
 plt.ylabel("Loss")
 plt.title("Training Loss vs Validation Loss")
@@ -133,34 +140,34 @@ plt.plot(validation_accuracies, label='Validation')
 plt.plot(train_accuracies, label='Training')
 plt.xlabel("Epoch")
 plt.ylabel("Accuracy")
-plt.title("Validation Accuracy")
+plt.title("Training and Validation Accuracy")
 plt.legend()
 plt.grid()
 plt.show()
 
 # Confusion Matrix
-# cm = confusion_matrix(test_targets, test_predictions)
-# cm_norm = cm.astype(float) / cm.sum(axis=1, keepdims=True)
-# plt.figure(figsize=(8,8))
-# plt.imshow(cm_norm, vmin=0, vmax=1)
-# plt.colorbar()
-# classes = ["HToBB", "HToCC", "HToGG", "HToWW2Q1L", "HToWW4Q", "TTBar", "TTBarLep", "WToQQ", "ZJetsToNuNu", "ZtoQQ"]
-# plt.xticks(range(10), classes, rotation=45)
-# plt.yticks(range(10), classes)
-# plt.title("Confusion Matrix")
-# plt.xlabel("Predicted")
-# plt.ylabel("True")
-# plt.show()
+classes = normalization["class_names"]
+cm = confusion_matrix(test_targets, test_predictions, labels = range(len(classes)))
+cm_norm = cm.astype(float) / cm.sum(axis=1, keepdims=True)
+plt.figure(figsize=(8,8))
+plt.imshow(cm_norm, vmin=0, vmax=1)
+plt.colorbar()
+plt.xticks(range(10), classes, rotation=45)
+plt.yticks(range(10), classes)
+plt.title("Confusion Matrix")
+plt.xlabel("Predicted")
+plt.ylabel("True")
+plt.show()
 
 # Per-Class Accuracy
-# per_class_accuracy = cm.diagonal() / cm.sum(axis=1)
-# for name, acc in zip(classes, per_class_accuracy):
-#     print(f"{name:15s}: {acc:.3f}")
-# plt.figure(figsize=(10,5))
-# plt.bar(classes, per_class_accuracy)
-# plt.xticks(rotation=45)
-# plt.ylabel("Accuracy")
-# plt.ylim(0,1)
-# plt.title("Per Class Accuracy")
-# plt.grid(axis="y")
-# plt.show()
+per_class_accuracy = cm.diagonal() / cm.sum(axis=1)
+for name, acc in zip(classes, per_class_accuracy):
+    print(f"{name:15s}: {acc:.3f}")
+plt.figure(figsize=(10,5))
+plt.bar(classes, per_class_accuracy)
+plt.xticks(rotation=45)
+plt.ylabel("Accuracy")
+plt.ylim(0,1)
+plt.title("Per Class Accuracy")
+plt.grid(axis="y")
+plt.show()
