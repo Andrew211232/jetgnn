@@ -99,13 +99,14 @@ class_labels = [
 def process_chunk(chunk, category):
     # Targets
     target = class_labels.index(category)
-    targets = np.argmax(target_matrix, axis=-1)
 
     # Features
     feature_names = sorted([f for f in chunk.fields if f.startswith("part_")]) # includes only the low level features we want
+    if len(feature_names) != 16:
+        raise ValueError("16 features not found")
     graphs = []
 
-    for jet in range(len(targets)):
+    for jet in range(len(chunk)):
         particle_features = [ak.to_numpy(chunk[name][jet]) for name in feature_names] # gets the features of each particle
         check_length = [len(feature) for feature in particle_features]
         if len(set(check_length)) != 1:
@@ -120,7 +121,7 @@ def process_chunk(chunk, category):
         particle_graph = Data(
             x=torch.tensor(x, dtype=torch.float32),
             edge_index = edge_index,
-            y = torch.tensor([targets[jet]], dtype=torch.long))
+            y = torch.tensor([target], dtype=torch.long))
         graphs.append(particle_graph)
 
     return graphs
