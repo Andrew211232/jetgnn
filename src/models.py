@@ -4,22 +4,17 @@ from torch_geometric.nn import global_mean_pool
 import torch.nn as nn
 import random
 
-def load_processed_chunks(directory, include_category=False, shuffle=False):
-
-    files = sorted(glob.glob(
-        os.path.join(directory, "*.pt")
-    ))
-    if shuffle:
-        random.shuffle(files)
+def load_random_chunks(directory, chunks_per_group=10):
+    files = sorted(glob.glob(os.path.join(directory, "*.pt")))
+    random.shuffle(files)
     if not files:
-        raise FileExistsError("No files to load")
-    for filename in files:
-        graphs = torch.load(filename, weights_only=False)
-        if include_category:
-            category = os.path.basename(filename).rsplit("_", 1)[0]
-            yield category, graphs
-        else:
-            yield graphs
+            raise FileExistsError("No files to load")
+    for first in range(0, len(files), chunks_per_group):
+        graph_output = []
+        for file in files[first:first + chunks_per_group]:
+            graph_output.extend(torch.load(file, weights_only=False))
+        random.shuffle(graph_output)
+        yield graph_output
 
 class EarlyStopping: # I could also implement this directly into the code
     def __init__(self, patience, delta_min):

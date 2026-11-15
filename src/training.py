@@ -18,7 +18,6 @@ random.seed(12345)
 np.random.seed(12345)
 torch.manual_seed(12345)
 EPOCHS = 1
-#mean, std = preprocessing.get_mean_std(training_files)
 model = models.JetClassGNN(mean, std)
 model = model.to(gpu_or_cpu)
 best_model = models.EarlyStopping(patience=5, delta_min=1e-4)
@@ -38,7 +37,7 @@ for epoch in range(EPOCHS):
     train_graphs = 0
     train_correct = 0
     train_total = 0
-    training_graph_list = models.load_processed_chunks("data/processed/processed_training", shuffle=True)
+    training_graph_list = models.load_random_chunks("data/processed/processed_training", shuffle=True)
     for graph in training_graph_list:
         if not graph:
             continue
@@ -65,7 +64,7 @@ for epoch in range(EPOCHS):
     correct = 0
     total = 0
     validation_graphs = 0
-    validation_graph_list = models.load_processed_chunks("data/processed/processed_validation")
+    validation_graph_list = models.load_random_chunks("data/processed/processed_validation")
     with torch.no_grad():
         for graph in validation_graph_list:
             if not graph:
@@ -100,7 +99,7 @@ test_total = 0
 test_graphs = 0
 test_predictions = []
 test_targets = []
-testing_graph_list = models.load_processed_chunks("data/processed/processed_testing")
+testing_graph_list = models.load_random_chunks("data/processed/processed_testing")
 with torch.no_grad():
     for graph in testing_graph_list:
         if not graph:
