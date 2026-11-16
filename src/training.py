@@ -131,6 +131,7 @@ plt.ylabel("Loss")
 plt.title("Training Loss vs Validation Loss")
 plt.legend()
 plt.grid()
+plt.savefig('outputs/loss.png', dpi=300)
 plt.show()
 
 # Training and Validation Accuracy
@@ -142,6 +143,7 @@ plt.ylabel("Accuracy")
 plt.title("Training and Validation Accuracy")
 plt.legend()
 plt.grid()
+plt.savefig('outputs/accuracy.png', dpi=300)
 plt.show()
 
 # Confusion Matrix
@@ -156,6 +158,7 @@ plt.yticks(range(10), classes)
 plt.title("Confusion Matrix")
 plt.xlabel("Predicted")
 plt.ylabel("True")
+plt.savefig('outputs/confusion_matrix.png', dpi=300)
 plt.show()
 
 # Per-Class Accuracy
@@ -169,4 +172,5 @@ plt.ylabel("Accuracy")
 plt.ylim(0,1)
 plt.title("Per Class Accuracy")
 plt.grid(axis="y")
+plt.savefig('outputs/per_class_accuracy.png', dpi=300)
 plt.show()
