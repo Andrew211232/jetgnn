@@ -17,7 +17,7 @@ std = normalization["std"]
 random.seed(12345)
 np.random.seed(12345)
 torch.manual_seed(12345)
-EPOCHS = 1
+EPOCHS = 15
 model = models.JetClassGNN(mean, std)
 model = model.to(gpu_or_cpu)
 best_model = models.EarlyStopping(patience=5, delta_min=1e-4)
@@ -37,7 +37,7 @@ for epoch in range(EPOCHS):
     train_graphs = 0
     train_correct = 0
     train_total = 0
-    training_graph_list = models.load_random_chunks("data/processed/processed_training", shuffle=True)
+    training_graph_list = models.load_random_chunks("data/processed/processed_training")
     for graph in training_graph_list:
         if not graph:
             continue
